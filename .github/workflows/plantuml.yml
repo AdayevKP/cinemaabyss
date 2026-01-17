@@ -1,0 +1,55 @@
+name: PlantUML Diagrams
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - schemas/diagrams/**/*.puml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - schemas/diagrams/**/*.puml
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.head_ref }}
+
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: '25'
+        distribution: temurin
+        check-latest: true
+    
+    - name: Install Graphviz
+      uses: ts-graphviz/setup-graphviz@v2
+
+    - name: Install PlantUML
+      run: |
+        chmod +x ./.github/scripts/install-plantuml.sh
+        sudo ./.github/scripts/install-plantuml.sh
+
+    - name: Generate Diagrams
+      run: |
+        plantuml -tsvg schemas/diagrams/**/*.puml
+
+    - name: Commit Diagrams
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add schemas/diagrams/**/*.svg
+        git commit -m "Automated diagram generation" || echo "No changes to commit"
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          git push origin HEAD:${{ github.head_ref }}
+        else
+          git push origin main
+        fi
+      if: success()
