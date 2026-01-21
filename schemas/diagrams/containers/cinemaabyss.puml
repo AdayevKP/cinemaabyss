@@ -1,0 +1,95 @@
+@startuml
+!theme C4_brown from <C4/themes>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+Person(user, "User", "Viewer")
+Person(admin, "Admin", "Cienemasbyss support and management")
+System_Ext(ext_rec_sys, "Recomendations system", "Recommends movies based on viewer preferences")
+System_Ext(ext_cinemas, "Online Cinemas", "Various online streaming platforms")
+System_Ext(ext_payment, "External payment systems", "Various online streaming platforms")
+
+System_Boundary(cinemaabyss_system, "Cinema Abyss") {
+    Container(\
+        api_gateway,\
+        "Api Gateway",\
+        "Backend api",\
+    )
+    Container(\
+        internal_api_gateway,\
+        "Internal Api Gateway",\
+        "Backend api",\
+        "Api gateway for admin"\
+    )
+    Container(\
+        user_app,\
+        "User application",\
+        "Backend api",\
+        "Registration, authentication, profile management"\
+    )
+    Container(\
+        movies_app, \
+        "Movies Application",\
+        "Backend api",\
+        "Allows to search, rate movies, create and browse movies comlpilations, \
+        shows recommendations"\
+    )
+    Container(\
+        streaming_app,\
+        "Movies streaming",\
+        "Backend real time video streaming app [WebRTC\HTTP]",\
+        "Allows to stream movies, connect new external online cinemas to Cinemaabyss app, stores viewing history"\
+    )
+    Container(\
+        subscribtion_app,\
+        "Subscribtion Service",\
+        "Backend Api",\
+        "Allows to create different types of subscriptions, to buy, to manage subsciptions, manages subscriptions payment, manages discounts"\
+    )
+    Container(\
+        payment_app,\
+        "Payment Service",\
+        "Backend Api",\
+        "Manages all payments via external payment services",\
+    )
+    Container(\
+        rec_app,\
+        "Recommendations App",\
+        "Backend Api",\
+        "Makes recommendations based on external recommendations service",\
+    )
+    ContainerQueue(rec_sys_rabbit, "RabbitMQ", "")
+    ContainerQueue(s3_movies, "Object storage", "S3", "Stores movies posters, previews, subtitles")
+
+    ContainerDb(user_app_db, "User Database", "Container: PostgreSQL")
+    ContainerDb(movies_app_db, "Movies Database", "Container: PostgreSQL")
+    ContainerDb(streaming_app_db, "Streaming Database", "Container: PostgreSQL")
+    ContainerDb(subscribtion_app_db, "Subscription Database", "Container: PostgreSQL")
+    ContainerDb(payment_app_db, "Payment Database", "Container: PostgreSQL")
+    ContainerDb(rec_app_db, "Recommendations Database", "Container: PostgreSQL")
+
+    Rel(api_gateway, user_app, "Manages account", "HTTP")
+    Rel(api_gateway, movies_app, "Browse movies", "HTTP")
+    Rel(api_gateway, streaming_app, "Streams movies", "HTTP")
+    Rel(api_gateway, subscribtion_app, "Manages subscribtions", "HTTP")
+
+    Rel(internal_api_gateway, streaming_app, "Manages external cinemas connections", "HTTP")
+    Rel(internal_api_gateway, subscribtion_app, "Manages subscribtions", "HTTP")
+
+    Rel(user_app, user_app_db, "Reads/Writes", "SQL")
+    Rel(movies_app, movies_app_db, "Reads/Writes", "SQL")
+    Rel(streaming_app, streaming_app_db, "Reads/Writes", "SQL")
+    Rel(subscribtion_app, subscribtion_app_db, "Reads/Writes", "SQL")
+    Rel(payment_app, payment_app_db, "Reads/Writes", "SQL")
+    Rel(rec_app, rec_app_db, "Reads/Writes", "SQL")
+
+    Rel(movies_app, s3_movies, "Reads/Writes")
+    BiRel(rec_sys_rabbit, rec_app, "Consumes/Publish")
+}
+
+BiRel(ext_rec_sys, rec_sys_rabbit, "Consumes/Publish", "AMQT")
+Rel(user, api_gateway, "Uses cinemaabyss app", "HTTP")
+Rel(admin, internal_api_gateway, "Manages cinemaabyss app", "HTTP")
+Rel(payment_app, ext_payment, "Make payments", "HTTP")
+
+@enduml
