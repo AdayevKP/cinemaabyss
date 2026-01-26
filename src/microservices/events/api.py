@@ -1,16 +1,24 @@
+import asyncio
 from contextlib import asynccontextmanager
+import logging
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
 from datetime import datetime
 
-import event_bus
+import events_producer
+import events_consumer
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await event_bus.connect()
+    await events_producer.connect()
+    app.state.consumer_task = asyncio.create_task(events_consumer.consume())
     yield
-    await event_bus.disconnect()
+    await events_producer.disconnect()
+    app.state.consumer_task.cancel()
 
 
 app = FastAPI(
@@ -84,7 +92,7 @@ async def create_movie_event(event: MovieEvent):
     Регистрирует новое событие, связанное с фильмом
     """
 
-    result = await event_bus.send_movie_event(event.model_dump())
+    result = await events_producer.send_movie_event(event.model_dump())
 
     if result["status"] == "error":
         raise HTTPException(status_code=500, detail=result["error"])
@@ -108,8 +116,7 @@ async def create_user_event(event: UserEvent):
     Создание события пользователя
     Регистрирует новое событие, связанное с пользователем
     """
-
-    result = await event_bus.send_user_event(event.model_dump())
+    result = await events_producer.send_user_event(event.model_dump())
 
     if result["status"] == "error":
         raise HTTPException(status_code=500, detail=result["error"])
@@ -133,7 +140,7 @@ async def create_payment_event(event: PaymentEvent):
     Создание события платежа
     Регистрирует новое событие, связанное с платежом
     """
-    result = await event_bus.send_payment_event(event.model_dump())
+    result = await events_producer.send_payment_event(event.model_dump())
 
     if result["status"] == "error":
         raise HTTPException(status_code=500, detail=result["error"])
