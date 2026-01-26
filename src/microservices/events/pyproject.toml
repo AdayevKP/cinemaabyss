@@ -1,0 +1,17 @@
+[project]
+name = "events"
+version = "0.1.0"
+description = "Events service"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.68.0",
+    "pydantic>=2.0.0",
+    "uvicorn>=0.15.0",
+    "aiokafka>=0.13.0",
+]
+
+
+[[tool.mypy.overrides]]
+module = "aiokafka.*"
+ignore_missing_imports = true
