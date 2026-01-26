@@ -81,6 +81,7 @@ System_Boundary(cinemaabyss_system, "Cinema Abyss") {
         "Service communications messages"\
     )
     ContainerQueue(rec_sys_rabbit, "RabbitMQ", "")
+    ContainerQueue(ext_payment_rabbit, "RabbitMQ", "")
     ContainerQueue(s3_movies, "Object storage", "S3", "Stores movies posters, previews, subtitles")
 
     ' ContainerDb(user_app_db, "User Database", "Container: PostgreSQL")
@@ -110,7 +111,7 @@ System_Boundary(cinemaabyss_system, "Cinema Abyss") {
     ' Rel(rec_app, rec_app_db, "Reads/Writes", "SQL")
 
     Rel(movies_app, s3_movies, "Reads/Writes")
-    BiRel(rec_sys_rabbit, rec_app, "Consumes/Publish")
+    BiRel_U(rec_sys_rabbit, rec_app, "Consumes/Publish")
 
     Rel(movies_app, kafka_esb, "Publish movies updates/ Consumes available streamings")
     Rel(user_app, kafka_esb, "Publish user updates")
@@ -119,18 +120,22 @@ System_Boundary(cinemaabyss_system, "Cinema Abyss") {
     Rel(internal_api_gateway, movies_app, "Manages movies data", "HTTP")
 
     Rel(streaming_app, kafka_esb, "Publish connected streamings, views history/Consumes subscriptions info")
-    Rel(subscription_app, kafka_esb, "Consumes movies, connected streamings, users/Publish subscriptions info")
+    Rel(subscription_app, kafka_esb, "Consumes movies, connected streamings, users, subscriptions payments info/Publish subscriptions info")
     Rel(movies_app, rec_app, "Reads recommendations", "HTTP")
+
+    Rel(payment_app, kafka_esb, "Publish payment statuses")
+    Rel(payment_app, ext_payment_rabbit, "Consumes payment updates")
 }
 
-Rel(streaming_app, ext_cinemas, "Connects to external cinemas", "HTTP/WebRTC/various streaming protocols/etc.")
-BiRel(ext_rec_sys, rec_sys_rabbit, "Consumes/Publish", "AMQT")
+Rel_R(streaming_app, ext_cinemas, "Connects to external cinemas", "HTTP/WebRTC/various streaming protocols/etc.")
+BiRel_U(ext_rec_sys, rec_sys_rabbit, "Consumes/Publish", "AMQT")
 Rel(user, web_app, "Uses cinemaabyss app", "HTTP")
 Rel(user, mobile_app, "Uses cinemaabyss app", "HTTP")
 Rel(user, tv_app, "Uses cinemaabyss app", "HTTP")
 Rel(admin, internal_api_gateway, "Manages cinemaabyss app", "HTTP")
 Rel(payment_app, ext_payment, "Make payments", "HTTP")
-Rel(ext_payment, payment_app, "Publish payment statuses")
+
+Rel_U(ext_payment, ext_payment_rabbit, "Publish payment statuses")
 
 note "Service databases omitted from schema for simplicity" as db_note
 
