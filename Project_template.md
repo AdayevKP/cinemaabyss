@@ -2,8 +2,7 @@
 
 ## Задание 1
 
-1. Целевая архитектура кинобездны
-[Cinema abyss C4 container schema](/schemas/diagrams/containers/cinemaabyss.svg)
+[Целевая архитектура кинобездны](/schemas/diagrams/containers/cinemaabyss.svg)
 
 ## Задание 2
 
@@ -11,17 +10,11 @@
 [Реализация Proxy через nginx](src/microservices/proxy)
 
 ### 2. Kafka
- Вам как архитектуру нужно также проверить гипотезу насколько просто реализовать применение Kafka в данной архитектуре.
+[Реализация Events сервиса](src/microservices/events)
 
-Для этого нужно сделать MVP сервис events, который будет при вызове API создавать и сам же читать сообщения в топике Kafka.
 
-    - Разработайте сервис на любом языке программирования с consumer'ами и producer'ами.
-    - Реализуйте простой API, при вызове которого будут создаваться события User/Payment/Movie и обрабатываться внутри сервиса с записью в лог
-    - Добавьте в docker-compose новый сервис, kafka там уже есть
-
-Необходимые тесты для проверки этого API вызываются при запуске npm run test:local из папки tests/postman 
-Приложите скриншот тестов и скриншот состояния топиков Kafka http://localhost:8090 
-
+[Результат тестов](images/postman-tests.png) </br>
+[Топики Kafka](images/kafka-topics.png)
 
 ## Задание 3
 
