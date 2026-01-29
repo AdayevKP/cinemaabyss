@@ -10,9 +10,13 @@ data:
   DB_NAME: "cinemaabyss"
   DB_USER: "postgres"
 
+  #kafka configuration
+  KAFKA_HOST: "kafka"
+  KAFKA_PORT: "9092"
+
   # Service URLs
-  MONOLITH_URL: "http://monolith:8080"
-  MOVIES_SERVICE_URL: "http://movies-service:8081"
+  MONOLITH_URL: "monolith:8080"
+  MOVIES_SERVICE_URL: "movies-service:8081"
   
   # Strangler Fig configuration
   GRADUAL_MIGRATION: "true"
