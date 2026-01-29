@@ -7,6 +7,7 @@ COPY entrypoint.sh app/entrypoint.sh
 
 RUN mkdir -p /var/log/nginx/proxy
 
+ENV PORT=8000
 ENV GRADUAL_MIGRATION=true
 ENV MOVIES_MIGRATION_PERCENT=50
 ENV MOVIES_SERVICE_URL=movies-service:8081
