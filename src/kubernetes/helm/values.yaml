@@ -169,7 +169,7 @@ ingress:
   hosts:
     - host: cinemaabyss.example.com
       paths:
-        - path: /
+        - path: /api/movies
           pathType: Prefix
           service: proxy-service
           port: 80
@@ -177,6 +177,10 @@ ingress:
           pathType: Prefix
           service: events-service
           port: 8082
+        - path: /
+          pathType: Prefix
+          service: monolith
+          port: 8080
 
 # Application configuration
 config:
