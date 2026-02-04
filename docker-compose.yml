@@ -119,7 +119,7 @@ services:
       MOVIES_SERVICE_URL: movies-service:8081
       EVENTS_SERVICE_URL: events-service:8082
       GRADUAL_MIGRATION: "true"
-      MOVIES_MIGRATION_PERCENT: 75
+      MOVIES_MIGRATION_PERCENT: 0
     networks:
       - cinemaabyss-network
 
