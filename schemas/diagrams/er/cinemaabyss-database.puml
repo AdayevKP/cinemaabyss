@@ -1,0 +1,80 @@
+@startuml
+!theme C4_brown from <C4/themes>
+!include <C4/C4_Context>
+!include <C4/C4_Container>
+
+title CinemaAbyss Database Schema
+
+entity "users" as users {
+  id : SERIAL [PK]
+  username : VARCHAR(100) [UNIQUE]
+  email : VARCHAR(255) [UNIQUE]
+  password_hash : VARCHAR(255)
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "movies" as movies {
+  id : SERIAL [PK]
+  title : VARCHAR(255)
+  description : TEXT
+  rating : DECIMAL(3,1)
+  release_date : DATE
+  duration : INTEGER
+  poster_url : VARCHAR(255)
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "movie_genres" as movie_genres {
+  movie_id : INTEGER [PK, FK]
+  genre : VARCHAR(50) [PK]
+}
+
+entity "payments" as payments {
+  id : SERIAL [PK]
+  user_id : INTEGER [FK]
+  amount : DECIMAL(10,2)
+  timestamp : TIMESTAMP
+  status : VARCHAR(50)
+  payment_method : VARCHAR(50)
+  transaction_id : VARCHAR(255)
+}
+
+entity "subscriptions" as subscriptions {
+  id : SERIAL [PK]
+  user_id : INTEGER [FK]
+  plan_type : VARCHAR(50)
+  start_date : TIMESTAMP
+  end_date : TIMESTAMP
+  auto_renew : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "views" as views {
+  id : SERIAL [PK]
+  user_id : INTEGER [FK]
+  movie_id : INTEGER [FK]
+  view_date : TIMESTAMP
+  duration : INTEGER
+  completed : BOOLEAN
+}
+
+entity "user_ratings" as user_ratings {
+  user_id : INTEGER [PK, FK]
+  movie_id : INTEGER [PK, FK]
+  rating : INTEGER
+  review : TEXT
+  created_at : TIMESTAMP
+}
+
+users ||--o{ payments : ""
+users ||--o{ subscriptions : ""
+users ||--o{ views : ""
+users ||--o{ user_ratings : ""
+movies ||--o{ movie_genres : ""
+movies ||--o{ views : ""
+movies ||--o{ user_ratings : ""
+
+@enduml
